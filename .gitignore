@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python virtual environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# Build and generated output
+dist/
+build/
+coverage/
+public/js/astrology-engine.bundle.js
+android/.gradle/
+android/**/build/
+android/local.properties
+
+Ayush_V_Nair_Complete_Life_Book
+Ayush_V_Nair_Soulmate_Money_Career_Book
+# Android signing files
+android/keystore/
+*.jks
+*.keystore
+*.password
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+
+# Deployment metadata
+.vercel/

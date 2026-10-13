@@ -1,0 +1,9 @@
+{
+  "appId": "com.ayushvnair.naksha",
+  "appName": "Naksha",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "android": {
+    "backgroundColor": "#0b0d14"
+  }
+}
