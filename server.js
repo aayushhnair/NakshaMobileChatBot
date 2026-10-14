@@ -8,7 +8,7 @@ const os = require('os');
 const qrcode = require('qrcode-terminal');
 
 const { getDailyAstrology, getMonthlyAstrology, getYearlyAstrology, getAstroCalculations } = require('./services/astrologyEngine');
-const { chatWithNaksha } = require('./services/geminiService');
+const { chatWithNaksha, synthesizeNakshaVoice } = require('./services/geminiService');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -77,18 +77,39 @@ app.get('/api/calculations', (req, res) => {
 
 app.post('/api/chat', async (req, res) => {
   try {
-    const { message, messages } = req.body;
+    const { message, messages, memories } = req.body;
     if (!message || typeof message !== 'string') {
       return res.status(400).json({ success: false, error: 'Message is required' });
     }
 
-    const reply = await chatWithNaksha(messages || [], message);
+    const reply = await chatWithNaksha(messages || [], message, memories || []);
     res.json({ success: true, reply });
   } catch (err) {
     console.error('Error in /api/chat:', err);
     res.status(500).json({
       success: false,
       error: err.message || 'Error communicating with Naksha AI'
+    });
+  }
+});
+
+app.post('/api/tts', async (req, res) => {
+  try {
+    const { text } = req.body;
+    if (!text || typeof text !== 'string') {
+      return res.status(400).json({ success: false, error: 'Text is required' });
+    }
+    if (text.length > 4000) {
+      return res.status(400).json({ success: false, error: 'Text is too long for voice playback' });
+    }
+
+    const audio = await synthesizeNakshaVoice(text);
+    res.json({ success: true, ...audio });
+  } catch (err) {
+    console.error('Error in /api/tts:', err);
+    res.status(502).json({
+      success: false,
+      error: err.message || 'Error generating Naksha voice'
     });
   }
 });

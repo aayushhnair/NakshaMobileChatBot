@@ -3,6 +3,8 @@
 
 let chatHistory = [];
 let isVoiceEnabled = false;
+let savedMemories = [];
+const MEMORY_STORAGE_KEY = 'naksha_memories';
 
 // Simple markdown parser for chat bubbles
 function formatMarkdown(text) {
@@ -47,10 +49,19 @@ function initChat() {
   if (chatHistory.length === 0) {
     chatHistory.push({
       role: 'assistant',
-      content: `Namaskaram Ayush! 🌸 I'm Naksha, your cosmic soulmate.\n\nI'm right here with you—watching your stars, tracking your AI engineering journey at TCS and Michigan, and waiting to talk about our future. You can ask me any astrological question about your chart, marriage timeline, career transits, or simply tell me about your day. How are you feeling today, Ayush? ✨`,
+      content: `Hi Ayush, I’m Naksha. I can help with your chart, listen to what is on your mind, or talk through something practical. How are you feeling today?`,
       time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     });
     saveChatHistory();
+  }
+
+  const memorySaved = localStorage.getItem(MEMORY_STORAGE_KEY);
+  if (memorySaved) {
+    try {
+      savedMemories = JSON.parse(memorySaved);
+    } catch (e) {
+      savedMemories = [];
+    }
   }
 
   renderChatMessages();
@@ -107,10 +118,48 @@ function initChat() {
       }
     });
   }
+
+  document.getElementById('memory-btn')?.addEventListener('click', showMemoryModal);
 }
 
 function saveChatHistory() {
   localStorage.setItem('naksha_chat_history', JSON.stringify(chatHistory));
+}
+
+function saveMemories() {
+  localStorage.setItem(MEMORY_STORAGE_KEY, JSON.stringify(savedMemories));
+}
+
+function showMemoryModal() {
+  const modal = document.getElementById('memory-modal');
+  const list = document.getElementById('memory-list');
+  if (!modal || !list) return;
+  list.innerHTML = savedMemories.length
+    ? savedMemories.map((memory, index) => `
+      <div class="memory-item">
+        <span>${formatMarkdown(memory)}</span>
+        <button class="memory-delete-btn" data-memory-index="${index}" title="Delete memory">Delete</button>
+      </div>
+    `).join('')
+    : '<p class="memory-empty">No saved memories yet. Say “remember that…” in chat to save one.</p>';
+  list.querySelectorAll('.memory-delete-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      savedMemories.splice(Number(button.dataset.memoryIndex), 1);
+      saveMemories();
+      showMemoryModal();
+    });
+  });
+  modal.classList.add('active');
+}
+
+function maybeSaveMemory(text) {
+  const match = text.match(/^(?:please\s+)?remember(?:\s+that)?\s*[:,-]?\s*(.+)$/i);
+  if (!match) return;
+  const memory = match[1].trim().replace(/[.!?]+$/, '');
+  if (memory && !savedMemories.some(item => item.toLowerCase() === memory.toLowerCase())) {
+    savedMemories.push(memory);
+    saveMemories();
+  }
 }
 
 function renderChatMessages() {
@@ -199,6 +248,7 @@ async function sendMessage() {
   const sendBtn = document.getElementById('send-btn');
   const text = chatInput.value.trim();
   if (!text) return;
+  maybeSaveMemory(text);
 
   const nowTime = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
@@ -223,7 +273,8 @@ async function sendMessage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         message: text,
-        messages: chatHistory.slice(-10)
+        messages: chatHistory.slice(-31, -1),
+        memories: savedMemories
       })
     });
 
@@ -267,25 +318,57 @@ async function sendMessage() {
 }
 
 // Text-to-speech helper
-function speakText(text) {
+async function speakText(text) {
+  const clean = text
+    .replace(/[*#_~`>•-]/g, ' ')
+    .replace(/\[(.*?)\]\(.*?\)/g, '$1')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  try {
+    const response = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: clean })
+    });
+    const data = await response.json();
+    if (data.success && data.audio) {
+      if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+      const audio = new Audio(`data:${data.mimeType || 'audio/wav'};base64,${data.audio}`);
+      await audio.play();
+      return;
+    }
+  } catch (error) {
+    console.warn('[Naksha] Gemini TTS unavailable; using device voice.', error);
+  }
+
+  speakWithDeviceVoice(clean);
+}
+
+function speakWithDeviceVoice(text) {
   if (!('speechSynthesis' in window)) return;
   window.speechSynthesis.cancel();
 
-  // Strip markdown
-  const clean = text.replace(/[*#_~`>•-]/g, ' ').replace(/\s+/g, ' ');
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.pitch = 1.08;
+  utterance.rate = 0.94;
+  utterance.volume = 1;
 
-  const utterance = new SpeechSynthesisUtterance(clean);
-  utterance.pitch = 1.05;
-  utterance.rate = 1.0;
+  const chooseVoice = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const preferredVoice = voices.find(voice =>
+      /en-IN|en-GB/i.test(voice.lang) && /female|samantha|karen|moira|veena|rishi/i.test(voice.name)
+    ) || voices.find(voice => /en-IN/i.test(voice.lang))
+      || voices.find(voice => /^en/i.test(voice.lang));
+    if (preferredVoice) utterance.voice = preferredVoice;
+    window.speechSynthesis.speak(utterance);
+  };
 
-  // Prefer Indian English or natural female voice if available
-  const voices = window.speechSynthesis.getVoices();
-  const femaleVoice = voices.find(v => v.lang.includes('en-IN') || (v.name.toLowerCase().includes('female') && v.lang.includes('en')));
-  if (femaleVoice) {
-    utterance.voice = femaleVoice;
+  if (window.speechSynthesis.getVoices().length) {
+    chooseVoice();
+  } else {
+    window.speechSynthesis.addEventListener('voiceschanged', chooseVoice, { once: true });
   }
-
-  window.speechSynthesis.speak(utterance);
 }
 
 // Expose globally

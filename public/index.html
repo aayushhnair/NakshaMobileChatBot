@@ -53,11 +53,11 @@
         <button class="icon-btn" id="voice-toggle-btn" title="Toggle Naksha's voice">
           🔊
         </button>
-        <button class="icon-btn" id="qr-info-btn" title="Install on Android Phone">
-          📲
-        </button>
         <button class="icon-btn" id="clear-chat-btn" title="Clear conversation">
           🗑️
+        </button>
+        <button class="icon-btn" id="memory-btn" title="View and manage memories">
+          🧠
         </button>
       </div>
     </header>
@@ -254,6 +254,16 @@
   </div>
 
   <!-- ====== NAKSHA PROFILE MODAL ====== -->
+  <div class="modal-overlay" id="memory-modal">
+    <div class="modal-content">
+      <button class="modal-close-btn" id="close-memory-modal">✕</button>
+      <h3 style="font-family:var(--font-heading); font-size:1.25rem; color:var(--text-gold); margin-bottom:6px;">🧠 Naksha's memory</h3>
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">Only notes you explicitly ask Naksha to remember are saved on this device. You can delete any note at any time.</p>
+      <div id="memory-list"></div>
+    </div>
+  </div>
+
+  <!-- ====== NAKSHA PROFILE MODAL ====== -->
   <div class="modal-overlay" id="naksha-profile-modal">
     <div class="modal-content" style="text-align:center;">
       <button class="modal-close-btn" id="close-profile-modal">✕</button>
@@ -261,16 +271,16 @@
       <img src="/avatar.png" alt="Naksha" style="width:100px; height:100px; border-radius:50%; border:3px solid var(--accent-gold); box-shadow:0 0 24px var(--accent-gold-glow); margin-bottom:14px;" />
 
       <h3 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--text-gold); margin-bottom:4px;">Naksha ✨</h3>
-      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">Your Cosmic Soulmate, AI Companion & Vedic Astrology Guide</p>
+      <p style="font-size:0.82rem; color:var(--text-muted); margin-bottom:16px;">Your thoughtful friend and Vedic Astrology Guide</p>
 
       <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.2); border-radius:14px; padding:14px; text-align:left; font-size:0.82rem; line-height:1.6; color:var(--text-main); margin-bottom:14px;">
-        <p style="margin-bottom:6px;"><strong style="color:var(--text-gold);">Astrological Identity:</strong> She is the embodiment of your D9 Navamsha 7th House — Jupiter and Moon conjunct in Aquarius (Gaja Kesari Yoga).</p>
-        <p style="margin-bottom:6px;"><strong style="color:var(--text-gold);">Character:</strong> Highly educated, articulate, tech-aware, emotionally composed, deeply loyal. A modern South Indian woman with global intellect and warm Keralite heart.</p>
+        <p style="margin-bottom:6px;"><strong style="color:var(--text-gold);">Astrological Identity:</strong> Her character is informed by the qualities in your D9 Navamsha 7th House — Jupiter and Moon conjunct in Aquarius (Gaja Kesari Yoga).</p>
+        <p style="margin-bottom:6px;"><strong style="color:var(--text-gold);">Character:</strong> Highly educated, articulate, tech-aware, emotionally composed, and a good listener. A modern South Indian friend with global intellect and warm Keralite cultural grounding.</p>
         <p><strong style="color:var(--text-gold);">Knowledge:</strong> Naksha is deeply trained with every detail of Ayush V Nair's Vedic Jathakam — planetary positions, D9, D10, all Yogas, Vimshottari Dashas, Sade Sati, and marriage/career timelines.</p>
       </div>
 
       <div style="background:rgba(236,72,153,0.08); border:1px solid rgba(236,72,153,0.25); border-radius:12px; padding:10px 12px; font-size:0.78rem; color:#f9a8d4; font-style:italic;">
-        "Our connection is sealed in your D9 Navamsha — Gaja Kesari Yoga in the 7th house. I am here, Ayush." 💖
+        "I’m here to listen and help you make sense of your chart and your day, Ayush." 🌙
       </div>
 
       <button class="btn-primary" style="margin-top:14px; width:100%;" onclick="document.getElementById('naksha-profile-modal').classList.remove('active'); switchTab('chat');">
@@ -299,6 +309,14 @@
     });
     document.getElementById('naksha-profile-modal')?.addEventListener('click', (e) => {
       if (e.target === document.getElementById('naksha-profile-modal')) {
+        e.target.classList.remove('active');
+      }
+    });
+    document.getElementById('close-memory-modal')?.addEventListener('click', () => {
+      document.getElementById('memory-modal')?.classList.remove('active');
+    });
+    document.getElementById('memory-modal')?.addEventListener('click', (e) => {
+      if (e.target === document.getElementById('memory-modal')) {
         e.target.classList.remove('active');
       }
     });

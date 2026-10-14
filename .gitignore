@@ -29,6 +29,8 @@ android/keystore/
 *.keystore
 *.password
 
+Maniphess
+
 # IDE and OS files
 .idea/
 .vscode/

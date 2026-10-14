@@ -1,6 +1,6 @@
 // public/sw.js
 // Service Worker for Naksha Jathakam PWA
-const CACHE_NAME = 'devika-jathakam-v1';
+const CACHE_NAME = 'naksha-jathakam-v3';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
@@ -12,6 +12,8 @@ const ASSETS_TO_CACHE = [
   '/js/kundali.js',
   '/avatar.png',
   '/manifest.json',
+  '/icons/favicon-32.png',
+  '/icons/apple-touch-icon.png',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/icons/icon-maskable-512.png'

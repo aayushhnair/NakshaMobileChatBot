@@ -3,6 +3,7 @@
 
 let currentForecastTab = 'monthly'; // 'monthly' or 'yearly'
 let selectedMonth = new Date().getMonth() + 1; // 1 to 12
+let selectedYear = new Date().getFullYear();
 let monthlyDataCache = null;
 let yearlyDataCache = null;
 
@@ -42,7 +43,7 @@ async function loadForecastData() {
 
   try {
     const [monthlyRes, yearlyRes] = await Promise.all([
-      fetch(`/api/monthly?year=2026&month=${selectedMonth}`).then(r => r.json()),
+      fetch(`/api/monthly?year=${selectedYear}&month=${selectedMonth}`).then(r => r.json()),
       fetch('/api/yearly').then(r => r.json())
     ]);
 
@@ -81,7 +82,7 @@ function renderMonthlyView(data) {
     <div class="glass-card" style="border-color:var(--border-glow); margin-bottom:14px;">
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
         <h3 style="font-family:var(--font-heading); font-size:1.35rem; color:var(--text-gold);">
-          ${activeMonth.name} 2026
+          ${activeMonth.name} ${data.year}
         </h3>
         <span class="welcome-badge">Monthly Gochara</span>
       </div>

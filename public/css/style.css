@@ -244,7 +244,7 @@ body {
 #view-chat {
   display: flex;
   flex-direction: column;
-  padding-bottom: 0;
+  padding-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 
 .chat-messages-container {
@@ -434,7 +434,7 @@ body {
 /* Chat Input Bar */
 .chat-input-bar {
   padding: 10px 14px;
-  padding-bottom: calc(var(--bottom-nav-height) + 10px);
+  padding-bottom: 10px;
   background: rgba(13, 17, 26, 0.95);
   backdrop-filter: blur(16px);
   border-top: 1px solid var(--border-subtle);
@@ -1120,4 +1120,35 @@ body {
   color: var(--text-muted);
   font-size: 1.3rem;
   cursor: pointer;
+}
+
+.memory-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 1px solid var(--border-glass);
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
+.memory-delete-btn {
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 8px;
+  color: #fca5a5;
+  cursor: pointer;
+  font-size: 0.72rem;
+  padding: 5px 8px;
+}
+
+.memory-empty {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
 }
